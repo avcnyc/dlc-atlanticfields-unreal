@@ -3,6 +3,15 @@
 Atlantic Fields regional map. Renders the route from the community (A) to a
 nearby POI (B) on top of the Cesium for Unreal 3D Tiles georeferenced world.
 
+The **masterplan** screen is a separate track in `dlc-atlanticfields-masterplan`
+(the Binyan vendor build). Same property, different codebase. This repo stays the
+single source for the georeference origin and for the conventions below.
+
+Because the conventions are single-sourced here, so is the work of landing that
+build in them: `.claude/MIGRATION-content-map.md` classifies the Binyan V1 content
+against the tree below, and `.claude/ASK-binyan-v1.md` is the folder-structure
+request to Binyan for V2. The performance plan stays in the masterplan repo.
+
 ## Requirements
 
 | Item | Version |

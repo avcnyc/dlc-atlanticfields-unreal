@@ -1,174 +1,284 @@
-# PLAN — Regional map A→B route (Phase 01 prototype)
+# PLAN — Regional Map prototype: POI coordinates → Cesium → A→B driving route
 
-Draw one route line from the Atlantic Fields community (A) to a nearby POI (B) on a fixed camera
-angle over Cesium 3D Tiles. No camera movement, no labels, no API — the 8/20 meeting scoped this to
-proving the concept and the draw-on presentation only. Everything the final pipeline needs is
-hardcoded here, but shaped so the hardcoding is the only thing that gets replaced.
-
-The prototype answers three questions the design mockup cannot: does a road-following polyline read
-correctly at regional camera distance, does it stay legible draped over real terrain, and does the
-draw-on animation hold up at that scale.
+**Ticket:** [AVC-5719 — Track A | Cesium](https://linear.app/av-controls/issue/AVC-5719)
+**Level:** `Content/Sites/AtlanticFields/RegionalMap/Maps/RegionalMap_Proto.umap`
+**Written:** 2026-09-17 · **Korean:** `.claude/PLAN-regional-map-route.ko.md`
 
 ---
 
-## What exists (traced, 2026-09-01)
+## Goal
 
-| Piece | Where | State |
+1. Turn the 46 spreadsheet addresses into lon/lat.
+2. Show those POIs on the Cesium globe.
+3. Pick 2 of them. Draw the real driving route from Atlantic Fields to each one, following real
+   roads, like Google Maps.
+
+This is a prototype. Fixed camera. No labels, no camera moves, no CMS.
+
+| AVC-5719 item | Here |
+|---|---|
+| 1. Environment | Phase 0 (done) |
+| 2. Routing | Phases 1–5 |
+| 3. Camera pole · 4. Flags · 5. Highlighting | out of scope |
+
+---
+
+## What is already set up
+
+| Item | Value |
+|---|---|
+| Georeference origin | **lat 27.064, lon -80.215** |
+| Cesium ion token | set |
+| Tileset | **Google Photorealistic 3D Tiles**, ion asset `2275207`, `Source: From Cesium Ion` |
+| In the level | `CesiumGeoreference0`, `CesiumSunSky`, `CesiumCameraManager0`, `CesiumCreditSystemBP0`, `DynamicPawn` |
+
+No Google Maps Platform key is needed. ion serves the Google tiles.
+
+**One thing to fix:** `Show Credits on Screen` is off on the tileset. Google attribution is a
+requirement for photoreal tiles. Turn it on, or confirm the Data Attribution panel shows the Google
+logo, and check it again in a packaged build.
+
+---
+
+## Services
+
+Both are OpenStreetMap, and neither needs an API key.
+
+| Job | Service | Notes |
 |---|---|---|
-| `CesiumForUnreal` | `dlc_atlanticfields.uproject` | Enabled. Win64/Mac/Linux/Android/IOS |
-| Cesium ion server asset | `Content/CesiumSettings/CesiumIonServers/CesiumIonSaaS` | Plugin-generated |
-| Folder skeleton | `Content/Route/`, `Content/Sites/AtlanticFields/RegionalMap/` | Empty |
-| Conventions | `README.md` | Folder / level / prefix rules, reuse path |
-| Git LFS | `.gitattributes` | `.uasset` `.umap` + source art. Hooks installed |
-| Design reference | Artifact `94740062` | Fixed-cam mockup, pipeline and terrain-drape diagrams |
-| Unreal project | — | **Nothing committed yet.** Only `.gitignore` is in history |
+| Address → lon/lat | **Nominatim** | 1 request/sec. 46 rows → 40 unique addresses ≈ 1 minute. Set a real User-Agent. |
+| Driving route | **OSRM** demo server | `router.project-osrm.org/route/v1/driving/{lon},{lat};{lon},{lat}?overview=full&geometries=geojson` |
 
-**Not present, deliberately:** `Plugins/Scaffold` (the AV&C framework submodule) and `Tools/crate`.
-Both sibling projects have them. Adopting them is a separate decision — see Open.
-
-**The load-bearing fact:** the reusable half of this feature already has a home. summerlin's
-`Content/Scaffold/Blueprints/BP_RoadLabelSpline` is a spline actor whose construction script places
-components along a path, parameterized per site through `DA_Summerlin` / `DA_Astra`, and it belongs to
-the Scaffold plugin's **Vista** module ("camera presentation, site management, labels, overlays").
-`BP_Route` is its sibling, not a new species. So `Content/Route/` is a staging area, and the only
-thing that has to hold is dependency direction: nothing in `Route/` may name Atlantic Fields.
+We call both **once**, from a script, and save the results as JSON in the project. Nothing runs at
+runtime. So the demo server having no SLA does not matter.
 
 ---
 
-## Design
+## Three decisions
 
-### Cache geographic coordinates, never Unreal coordinates
+### 1. Store lon/lat in the JSON, never Unreal coordinates
 
-The routing API returns WGS84 lon/lat. The temptation is to convert once, cache the resulting
-vectors, and be done. That breaks the moment the georeference origin moves — an origin edit, or
-origin rebasing near the camera, silently invalidates every baked point with no error to catch it.
+Convert to Unreal space at construction-script time, through the `CesiumGeoreference`. If we baked
+Unreal vectors instead, moving the origin would silently break every point and throw no error.
 
-So the cache stores `lon, lat, height` and conversion happens at spline build time. It costs one
-transform per point on a construction-script rebuild, which is nothing, and the cache then survives
-an origin change, a level split, and a second property with a different origin.
+### 2. Skip terrain height sampling. Use one fixed height.
 
-This also settles where the origin lives: `Sites/AtlanticFields/Data/DA_AtlanticFieldsGeo`, not the
-level. Every screen on the property shares one origin, and `Route/` reads it through the data asset
-instead of finding a georeference actor by name.
+Photoreal tiles have no bare-ground layer. `SampleHeightMostDetailed` on them returns rooftops and
+tree canopy, so it cannot give us road height.
 
-### Height comes from the tileset, not from a trace
+We do not need it. Hobe Sound to Jupiter is flat — the whole route area is within about 15 m of sea
+level. So we put the route line at **one fixed height above the ellipsoid** (start at 25 m) and the
+POI markers higher (start at 80 m). That removes the async sampling batch, the second tileset, and
+all the per-point failure handling.
 
-A line trace against 3D Tiles hits only what is currently streamed, and tileset LOD is driven by the
-render camera — so a trace's answer depends on where the camera happens to be looking.
-`Cesium3DTileset` exposes `SampleHeightMostDetailed`, which loads the most detailed tiles covering
-the query points regardless of the current view and returns per-point success flags. It is
-asynchronous.
+If a later site has real terrain, height sampling comes back. See §Cut on purpose.
 
-That asynchrony is why the drape belongs at bake time, not per frame:
+### 3. Route line draws on top (depth test off)
 
-| | Bake (chosen) | Per frame |
-|---|---|---|
-| Cost | one async batch per route | a sample per point per frame |
-| Determinism | same result every run | depends on streaming state |
-| Failure mode | visible at author time, per point | pops mid-presentation |
-
-Sampled height plus an offset, so the route floats above the surface rather than z-fighting it. The
-offset has to scale with camera distance or it vanishes at regional range; seed it from the fixed
-camera's distance and treat it as a dial.
-
-### Straight segments, rounded corners only
-
-A road-following route through a spline set to `Curve` everywhere bulges off the roads between
-points. Set every point `Linear`, then build each interior corner explicitly: replace vertex `V` with
-two points at distance `r` back along each leg, and give those two points tangents along their legs.
-The segment between them is the only curved piece.
-
-This is the mockup's `L … Q … L` construction, and it makes `r` the single shape dial. `r` is in
-world units, so a corner whose legs are shorter than `2r` would overshoot — clamp `r` per corner to
-half the shorter leg.
-
-### Draw-on by masking, not by rebuilding
-
-The presentation reveals the line from A to B. Two ways, and only one is cheap:
-
-- **Rebuild the spline mesh chain each frame** to the current length — a full component rebuild per
-  frame, and the leading edge steps by whole segments.
-- **Build the chain once, mask in the material** — bake normalized distance-along-route into each
-  spline mesh segment (UV channel or per-instance custom data), then clip where it exceeds a
-  `Progress` scalar. One parameter write per frame, sub-segment precision at the leading edge.
-
-The second. It also gives the leading-edge falloff and the endpoint reveal off the same scalar.
+Trees and buildings sit above the road in photoreal tiles. With depth test on, they chop the line
+into dashes. There are no hills here to hide it, so depth test buys nothing. Draw on top, the way
+Google Maps does.
 
 ---
 
-## Implementation
+## Phase 0 — Setup ✅ done
 
-### 1. `Content/Sites/AtlanticFields/Data/DA_AtlanticFieldsGeo`
-
-Origin `lon / lat / height`, the fixed camera's geographic pose, and the presentation dials
-(`RouteWidth`, `SurfaceOffset`, `CornerRadius`, `DrawDuration`). Property-level, shared by every
-screen.
-
-### 2. `Content/Sites/AtlanticFields/RegionalMap/Routes/`
-
-One JSON per POI holding the A→B point list as `lon, lat` pairs plus a travel time. The same shape
-the routing API will fill later, so the loader written now is the loader used then. Follows hhwv's
-`Content/<Feature>/JSON/` precedent.
-
-### 3. `Content/Route/Blueprints/Sys/`
-
-- `S_RoutePoint` — `Longitude`, `Latitude`, `Height`, `bHeightSampled`
-- `S_RouteData` — `TArray<S_RoutePoint>`, `TravelTimeSeconds`, `SourceId`
-- `E_RouteState` — `Idle`, `Sampling`, `Drawing`, `Complete`, `Failed`
-- `FL_RouteGeo` — geo→Unreal conversion, corner insertion, arc-length parameterization. Pure
-  functions, no actor references.
-
-### 4. `Content/Route/Blueprints/BP_Route`
-
-Spline component plus a spline mesh chain. Construction script: load `S_RouteData` → convert through
-the georeference → insert corner points → set point types → build the chain, writing normalized
-distance into each segment. Runtime: drive `Progress` 0→1 over `DrawDuration`, publish state changes
-through `BPI_Route`.
-
-Takes its parameters as inputs. It does not read the data asset itself — the level or screen
-blueprint passes it in, which is what keeps `Route/` property-clean.
-
-### 5. `Content/Route/Materials/M_RouteLine`
-
-Unlit, translucent, depth test **on** — hills should occlude the route. Clips on `Progress` vs baked
-distance. Parameters for colour, width, and leading-edge falloff. The property's brand values live in
-`Sites/AtlanticFields/RegionalMap/Materials/MI_RouteLine_AtlanticFields`.
-
-### 6. `Content/Sites/AtlanticFields/RegionalMap/Maps/RegionalMap_Proto.umap`
-
-World Partition **off** — `Cesium3DTileset` runs its own LOD and does not stream as a WP actor.
-Contents: `CesiumGeoreference` (origin from the data asset), the tileset, `CesiumSunSky`, a fixed
-`CineCameraActor`, one `BP_Route`, and a replay trigger.
+Origin, token and tileset are in place (see above). Only open item: the credits checkbox.
 
 ---
 
-## Verification
+## Phase 1 — Addresses → coordinates
 
-- **Regional legibility** — route readable at the fixed camera distance; line width holds, no aliasing crawl
-- **Terrain drape** — fly the editor camera along the route: no point buried in a hill, none floating over a valley
-- **Sample failure** — force a miss (query off-tileset) and confirm the point is flagged, not silently placed at height 0
-- **Corner shape** — segments stay on the road centreline, only corners curve; legs shorter than `2r` clamp instead of overshooting
-- **Draw-on** — leading edge advances smoothly and sub-segment; endpoint reveal lands with the line
-- **Origin independence** — move the georeference origin a few hundred metres and rebuild: the route lands in the same geographic place
-- **Property cleanliness** — reference viewer on every asset in `Route/`: zero references into `Sites/`
-- **Cold start** — fresh clone, empty request cache: the route still bakes as tiles load on demand
+**Why.** The sheet has text addresses only. Cesium needs numbers, and OSRM only accepts coordinates.
+This step runs once and is then cached forever.
+
+**Source:** [AF Regional POI (WIP)](https://docs.google.com/spreadsheets/d/1-I3zf2qSZ97hkE57KKu4sTeJpDbcRftW96A9NEBWUR4/edit?gid=639708013), tab `gid=639708013`.
+Header `Category, Name, Address, Distance`. **46 rows.** No lat/lon columns.
+`Distance` is **driving** miles, not straight-line. Confirmed against the source workbook, which
+lists both for airports: Palm Beach International is 27 mi straight-line and about 32 mi to drive,
+and this sheet carries 34.0.
+
+**Make**
+
+- `Tools/poi/geocode_poi.py` — pull sheet → dedupe → geocode → verify → write JSON
+- `Content/Sites/AtlanticFields/RegionalMap/POI/AF_POI.json`
+
+```json
+{
+  "origin": { "name": "Atlantic Fields", "lat": 27.064, "lon": -80.215 },
+  "pois": [
+    {
+      "id": "hobe-sound-social-coffee",
+      "name": "Hobe Sound Social + Coffee",
+      "categories": ["Restaurants & Dining"],
+      "address": "11844 SE Dixie Hwy Ste A, Hobe Sound, FL 33455",
+      "lat": 27.0619, "lon": -80.1387,
+      "sheetDistanceMi": 4.6, "computedDistanceMi": 4.5,
+      "active": true, "flagged": false
+    }
+  ]
+}
+```
+
+**Steps**
+
+1. Pull the sheet tab to CSV. Never hand-edit it.
+2. Dedupe on name + address. Some rows appear twice (every hospital, The Marketplace, Witham Field).
+   When rows merge, keep both categories — `The Pine School` is filed under two.
+3. Set `active: false` for rows marked "Permanently Closed".
+4. Geocode each address with Nominatim. Cache every response to disk.
+5. Check each result. The sheet lists driving miles, so only two outcomes are impossible: a straight
+   line longer than the drive, or one far shorter than any detour could explain. Flag those, plus
+   anything outside `lat 26.4–27.7, lon −80.8…−79.9`, plus anything coarser than street level that
+   is not a park or preserve.
+6. Fix flagged rows by hand and re-run.
+
+**Done when** every POI has lon/lat or is listed as unresolved with a reason, no flags are left
+unreviewed, and a re-run with the cache makes zero network calls.
+
+**Expect some hand-fixing.** Addresses with no street number, like `Hobe Sound Beach — Jupiter
+Island, FL 33455`, will land on a town centre. That is what step 5 catches.
+
+---
+
+## Phase 2 — POIs on the globe
+
+**Make**
+
+- `Content/POI/Blueprints/Sys/S_POI` — `Id`, `Name`, `Categories`, `Latitude`, `Longitude`, `bActive`
+- `Content/POI/Blueprints/BP_POIMarker` — mesh + `CesiumGlobeAnchor`
+- `Content/POI/Blueprints/BP_POISet` — reads `AF_POI.json`, spawns one marker per POI
+
+`Content/POI/` is a mechanism folder, so nothing inside it may reference Atlantic Fields. The
+property data comes in as an input.
+
+**Steps**
+
+1. Parse the JSON into `TArray<S_POI>`.
+2. Spawn a marker per active POI. Place it with `CesiumGlobeAnchor` at lat/lon and the fixed marker
+   height.
+3. Colour the marker by category, so a wrong category is visible instead of hidden in data.
+
+**Done when** all POIs sit in the right place (spot-check 5 against Google Maps), none are buried
+inside photoreal buildings, and they stay put if the origin moves.
+
+---
+
+## Phase 3 — Fetch 2 routes
+
+**The two POIs.** They cover two different problems, instead of the same one twice.
+
+| | POI | Distance | Why this one |
+|---|---|---|---|
+| **B1** | Hobe Sound Social + Coffee, Hobe Sound | 4.6 mi | short, many turns → does the line follow surface streets? |
+| **B2** | Jupiter Medical Center, Jupiter | 14.5 mi | long US-1 / I-95 run → is it readable at regional distance? |
+
+A is the origin, `27.064 / -80.215`.
+
+**Make**
+
+- `Tools/poi/fetch_route.py`
+- `Content/Sites/AtlanticFields/RegionalMap/Routes/Route_AF_to_HobeSoundSocial.json`
+- `Content/Sites/AtlanticFields/RegionalMap/Routes/Route_AF_to_JupiterMedical.json`
+
+```json
+{
+  "id": "af-to-jupiter-medical",
+  "from": { "id": "atlantic-fields", "lat": 27.064, "lon": -80.215 },
+  "to":   { "id": "jupiter-medical-center", "lat": 26.9234, "lon": -80.0975 },
+  "travelTimeSeconds": 1320,
+  "distanceMeters": 23336,
+  "points": [ { "lat": 27.064, "lon": -80.215 }, { "lat": 27.0638, "lon": -80.2149 } ]
+}
+```
+
+**Steps**
+
+1. Call OSRM with `overview=full`. This is the important part — the default `overview=simplified`
+   drops points and the line visibly cuts corners.
+2. OSRM GeoJSON gives `[lon, lat]` pairs. Our JSON names the fields, so write them by name and never
+   pass raw arrays around. **This is the most likely bug in the whole plan.**
+3. Sanity check: `distanceMeters` must be larger than the straight-line distance. If it is smaller,
+   the coordinates got swapped.
+
+**Done when** both files parse, their first and last points match A and B within ~50 m, and a re-run
+uses the cache.
+
+---
+
+## Phase 4 — Draw the route
+
+**Make**
+
+- `Content/Route/Blueprints/Sys/S_RoutePoint` — `Latitude`, `Longitude`
+- `Content/Route/Blueprints/Sys/S_RouteData` — `TArray<S_RoutePoint>`, `TravelTimeSeconds`, `SourceId`
+- `Content/Route/Blueprints/BP_Route` — spline + spline mesh chain
+- `Content/Route/Materials/M_RouteLine`
+- `Content/Sites/AtlanticFields/RegionalMap/Materials/MI_RouteLine_AtlanticFields`
+
+**Steps**
+
+1. `BP_Route` construction script: load the route JSON → convert each point through the georeference
+   at the fixed height → add all points to the spline as **Linear** → build the spline mesh chain,
+   writing normalized distance-along-route into each segment.
+   Linear is enough because `overview=full` already samples the road densely. See §Cut on purpose.
+2. `M_RouteLine`: unlit, translucent, **depth test off**. Parameters: colour, width, and `Progress`
+   (Phase 5 uses it).
+3. `BP_Route` takes width, height and colour as **inputs**. It does not read any Atlantic Fields
+   asset. The level passes them in.
+4. Tune the fixed height first. Raise it until the line clears the visible road at the fixed camera,
+   on both routes.
+
+**Done when**
+
+- The line reads clearly at the fixed camera distance and follows the real roads
+- It does not sink under the photoreal ground anywhere along either route
+- Moving the origin a few hundred metres and rebuilding puts the route back in the same place
+
+---
+
+## Phase 5 — Draw-on and wrap up
+
+**Steps**
+
+1. Drive `Progress` from 0 to 1 over `DrawDuration`. The material clips the line against it, so the
+   route reveals itself from A to B. One parameter per frame, no rebuilding.
+2. Add a replay trigger so it can be shown again without restarting PIE.
+3. Record both routes drawing. Attach the video to AVC-5719.
+4. Check the reference viewer on `Content/Route/` and `Content/POI/`: zero references into `Sites/`.
+5. Confirm Git LFS covers the new `.uasset` / `.umap` files, and that `DefaultEngine.ini` commits
+   with no `SecurityToken` line.
+6. Confirm Google credits are visible in a packaged build.
+7. Write the tuned height and width values into this file.
+
+**Definition of done**
+
+> Open `RegionalMap_Proto.umap` on a fresh clone. Atlantic Fields is on Google photoreal tiles, every
+> geocoded POI is placed, and two driving routes — one short and twisty, one long — draw themselves
+> along the real roads.
+
+---
+
+## Cut on purpose
+
+These were in the earlier draft. We removed them to keep the prototype small. Each one has a trigger
+that brings it back.
+
+| Cut | Bring it back when |
+|---|---|
+| Terrain height sampling (hidden second tileset, async batch, per-point failure flags) | a site has real elevation change, or the fixed height visibly fails somewhere |
+| Corner / curve classifier (`E_VertexKind`, `FL_RouteGeo.ClassifyVertices`, corner rounding, 3 tuning dials) | intersections look wrong with plain Linear points at the final camera distance |
+| `RouteSplineTest.umap` debug level | the corner classifier comes back |
+| `E_RouteState` / `BPI_Route` state machine | something outside `BP_Route` needs to react to route state, e.g. a HUD |
+| Depth test on the route line | a site has hills that should hide the line |
 
 ---
 
 ## Open
 
-1. **Georeference origin.** Needs the actual survey coordinates for Atlantic Fields. Everything else
-   here is dial-tuning; this one is a fact to be supplied.
-2. **Which tileset.** Cesium World Terrain + imagery, or Google Photorealistic 3D Tiles? The mockup
-   implies photoreal context. Google 3D Tiles carries different licensing and has no terrain-only
-   mode, which changes both the look and the drape offset.
-3. **Route source for the prototype.** Hand-authored points, or one real API response captured to
-   JSON now? The second costs about an hour and makes the loader real instead of a placeholder.
-4. **How many screens does the app have?** The Figma prototype could not be read (auth-gated). If
-   Regional Map is one of several screens, the `Sites/<Property>/<Screen>/` layer earns its keep; if
-   it is effectively the whole app, that layer should collapse.
-5. **Scaffold submodule timing.** Decided: prototype locally now, migrate later — `README.md`
-   §Reuse Path records what the migration costs. Revisit if the camera work starts before the route
-   lands.
-6. **Nothing is committed.** The project needs a first commit with LFS already in place. Doing it
-   after content lands means a `git lfs migrate` and a team-wide reclone.
+| # | Question | Blocks |
+|---|---|---|
+| 1 | Turn on `Show Credits on Screen`, or confirm the Google logo shows in the attribution panel | Phase 5 |
+| 2 | Is the 46-row sheet tab final? Re-pulling is cheap, but only if nobody hand-edited the JSON | Phase 1 |
+| 3 | 3 addresses OSM does not hold: Palm City Farm Camp, Treasure Coast Wildlife Center, Two Brother's Pizza. Look them up and add to `Tools/poi/overrides.json` | Phase 2 |
+| 4 | Every Hobe Sound POI computes a straight line slightly longer than the drive the sheet lists. The marketing distances look measured from a point about a mile east of the origin now in the level. Which point is right? | not blocking |
