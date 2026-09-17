@@ -1,0 +1,309 @@
+{
+  "1450 s dixie hwy west palm beach fl 33401": {
+    "lat": 26.700795,
+    "lon": -80.053842,
+    "variant": "full",
+    "placeRank": 30,
+    "addressType": "place",
+    "displayName": "1450, South Dixie Highway, West Palm Beach, Palm Beach County, Florida, 33401, United States"
+  },
+  "701 okeechobee blvd west palm beach fl 33401": {
+    "lat": 26.706901,
+    "lon": -80.060073,
+    "variant": "full",
+    "placeRank": 30,
+    "addressType": "amenity",
+    "displayName": "Kravis Center for the Performing Arts, 701, Okeechobee Boulevard, West Palm Beach, Palm Beach County, Florida, 33401, United States"
+  },
+  "11000 ellison wilson rd north palm beach fl 33408": {
+    "lat": 26.837285,
+    "lon": -80.064212,
+    "variant": "full",
+    "placeRank": 30,
+    "addressType": "place",
+    "displayName": "11000, Ellison Wilson Road, North Palm Beach, Palm Beach Gardens, Palm Beach County, Florida, 33408, United States"
+  },
+  "12350 se federal hwy hobe sound fl 33455": {
+    "lat": 27.052114,
+    "lon": -80.138868,
+    "variant": "full",
+    "placeRank": 30,
+    "addressType": "amenity",
+    "displayName": "The Pine School, 12350, Southeast Federal Highway, Hobe Sound, Martin County, Florida, 33455, United States"
+  },
+  "20654 sw citrus blvd indiantown fl 34956": {
+    "lat": 27.03672,
+    "lon": -80.439774,
+    "variant": "full",
+    "placeRank": 30,
+    "addressType": "aeroway",
+    "displayName": "Indiantown Airport, 20654, Southwest Citrus Boulevard, Indiantown, Martin County, Florida, 34956, United States"
+  },
+  "11600 aviation rd west palm beach fl 33412": {
+    "lat": 26.84581,
+    "lon": -80.220826,
+    "variant": "by-name-state",
+    "placeRank": 30,
+    "addressType": "aeroway",
+    "displayName": "North Palm Beach County General Aviation Airport, Aviation Road, Palm Beach County, Florida, United States"
+  },
+  "1000 james l turnage blvd west palm beach fl 33415": {
+    "lat": 26.685693,
+    "lon": -80.092891,
+    "variant": "full",
+    "placeRank": 30,
+    "addressType": "aeroway",
+    "displayName": "President Donald J. Trump International Airport, 1000, James L Turnage Boulevard, West Palm Beach, Palm Beach County, Florida, 33406, United States"
+  },
+  "2011 se airport rd stuart fl 34996": {
+    "lat": 27.183153,
+    "lon": -80.224886,
+    "variant": "full",
+    "placeRank": 30,
+    "addressType": "aeroway",
+    "displayName": "Witham Field, 2011, Southeast Airport Road, Stuart, Martin County, Florida, 34996, United States"
+  },
+  "200 se hospital ave 2346 stuart fl 34994": {
+    "lat": 27.199766,
+    "lon": -80.243154,
+    "variant": "no-suite",
+    "placeRank": 30,
+    "addressType": "amenity",
+    "displayName": "Martin North Hospital, 200, Southeast Hospital Avenue, Stuart, Martin County, Florida, 34995, United States"
+  },
+  "10000 sw innovation way port st lucie fl 34987": {
+    "lat": 27.261606,
+    "lon": -80.425411,
+    "variant": "full",
+    "placeRank": 30,
+    "addressType": "amenity",
+    "displayName": "Cleveland Clinic Tradition Hospital, 10000, Southwest Innovation Way, Port Saint Lucie, Saint Lucie County, Florida, 34987, United States"
+  },
+  "1800 se tiffany ave port st lucie fl 34952": {
+    "lat": 27.288805,
+    "lon": -80.294203,
+    "variant": "full",
+    "placeRank": 30,
+    "addressType": "amenity",
+    "displayName": "HCA Florida Saint Lucie Hospital, 1800, Southeast Tiffany Avenue, Port Saint Lucie, Saint Lucie County, Florida, 34952, United States"
+  },
+  "1210 s old dixie hwy jupiter fl 33458": {
+    "lat": 26.924122,
+    "lon": -80.094573,
+    "variant": "full",
+    "placeRank": 30,
+    "addressType": "place",
+    "displayName": "1210, South Old Dixie Highway, Jupiter, Palm Beach County, Florida, 33458, United States"
+  },
+  "3360 burns rd palm beach gardens fl 33410": {
+    "lat": 26.829115,
+    "lon": -80.086117,
+    "variant": "full",
+    "placeRank": 30,
+    "addressType": "amenity",
+    "displayName": "Palm Beach Gardens Medical Center, 3360, Burns Road, Monet, North Palm Beach, Palm Beach Gardens, Palm Beach County, Florida, 33410, United States"
+  },
+  "9875 se federal hwy hobe sound fl 33455": {
+    "lat": 27.055511,
+    "lon": -80.134679,
+    "variant": "full",
+    "placeRank": 26,
+    "addressType": "road",
+    "displayName": "Southeast Federal Highway, Hobe Sound, Martin County, Florida, 33455, United States"
+  },
+  "8851 se bridge rd hobe sound fl 33455": {
+    "lat": 27.060091,
+    "lon": -80.135079,
+    "variant": "full",
+    "placeRank": 30,
+    "addressType": "place",
+    "displayName": "8851, Southeast Bridge Road, Hobe Sound, Martin County, Florida, 33455, United States"
+  },
+  "574 s beach rd hobe sound fl 33455": {
+    "lat": 26.980508,
+    "lon": -80.084617,
+    "variant": "by-name-state",
+    "placeRank": 24,
+    "addressType": "nature_reserve",
+    "displayName": "The Nature Conservancy Blowing Rocks Preserve, 574, Blowing Rocks, Jupiter Island, Martin County, Florida, 33455, United States"
+  },
+  "151 lamstein ln royal palm beach fl 33411": {
+    "lat": 26.68789,
+    "lon": -80.222409,
+    "variant": "full",
+    "placeRank": 30,
+    "addressType": "place",
+    "displayName": "151, Lamstein Lane, Royal Palm Beach, Palm Beach County, Florida, 33411, United States"
+  },
+  "jupiter island fl 33455": {
+    "lat": 27.03419,
+    "lon": -80.103582,
+    "variant": "full",
+    "placeRank": 16,
+    "addressType": "town",
+    "displayName": "Jupiter Island, Martin County, Florida, United States"
+  },
+  "1 s beach rd hobe sound fl 33455": {
+    "lat": 27.06643,
+    "lon": -80.115664,
+    "variant": "by-name-state",
+    "placeRank": 24,
+    "addressType": "park",
+    "displayName": "Hobe Sound Beach, Jupiter Island, Martin County, Florida, United States"
+  },
+  "13640 se federal hwy hobe sound fl 33455": {
+    "lat": 27.051706,
+    "lon": -80.129683,
+    "variant": "full",
+    "placeRank": 26,
+    "addressType": "road",
+    "displayName": "Southeast Federal Highway, Hobe Sound, Martin County, Florida, 33455, United States"
+  },
+  "16450 se federal hwy hobe sound fl 33455": {
+    "lat": 27.001742,
+    "lon": -80.136873,
+    "variant": "full",
+    "placeRank": 30,
+    "addressType": "tourism",
+    "displayName": "Jonathan Dickinson State Park, 16450, Southeast Federal Highway, Martin County, Florida, 33455, United States"
+  },
+  "500 captain armours wy jupiter fl 33469": {
+    "lat": 26.949817,
+    "lon": -80.082741,
+    "variant": "full",
+    "placeRank": 30,
+    "addressType": "place",
+    "displayName": "500, Captain Armours Way, Jupiter, Palm Beach County, Florida, 33469, United States"
+  },
+  "2003 lion country safari rd loxahatchee fl 33470": {
+    "lat": 26.714923,
+    "lon": -80.32011,
+    "variant": "by-name",
+    "placeRank": 30,
+    "addressType": "tourism",
+    "displayName": "Lion Country Safari KOA Campground, 2000, Lion Country Safari Road, Palm Beach County, Florida, 33470, United States"
+  },
+  "12943 61st st n west palm beach fl 33412": {
+    "lat": 26.767622,
+    "lon": -80.245916,
+    "variant": "by-name-plain",
+    "placeRank": 24,
+    "addressType": "nature_reserve",
+    "displayName": "McCarthys Wildlife Sanctuary, 12943, West Palm Beach, Palm Beach County, Florida, 33412, United States"
+  },
+  "3565 se st lucie blvd stuart fl 34997": {
+    "lat": 27.198218,
+    "lon": -80.227409,
+    "variant": "full",
+    "placeRank": 26,
+    "addressType": "road",
+    "displayName": "Southeast Saint Lucie Boulevard, Stuart, Martin County, Florida, 34996, United States"
+  },
+  "6907 sw moore st palm city fl 34990": null,
+  "6566 n military trl west palm beach fl 33407": {
+    "lat": 26.75793,
+    "lon": -80.108597,
+    "variant": "full",
+    "placeRank": 26,
+    "addressType": "road",
+    "displayName": "North Military Trail, West Palm Beach, Palm Beach County, Florida, 33407, United States"
+  },
+  "1440 eshleman trail west palm beach fl 33413": {
+    "lat": 26.659196,
+    "lon": -80.166861,
+    "variant": "by-name-state",
+    "placeRank": 30,
+    "addressType": "building",
+    "displayName": "SHARK Wake Park, Okeeheelee Park, Palm Beach County, Florida, 33413, United States"
+  },
+  "8626 sw citrus blvd s palm city fl 34990": null,
+  "9042 se bridge rd hobe sound fl 33455": {
+    "lat": 27.060861,
+    "lon": -80.132371,
+    "variant": "full",
+    "placeRank": 30,
+    "addressType": "place",
+    "displayName": "9042, Southeast Bridge Road, Hobe Sound, Martin County, Florida, 33455, United States"
+  },
+  "11500 se federal hwy hobe sound fl 33455": {
+    "lat": 27.063635,
+    "lon": -80.138282,
+    "variant": "full",
+    "placeRank": 30,
+    "addressType": "place",
+    "displayName": "11500, Southeast Federal Highway, Hobe Sound, Martin County, Florida, 33455, United States"
+  },
+  "960 n hwy a1a jupiter fl 33477": {
+    "lat": 26.937842,
+    "lon": -80.094005,
+    "variant": "structured",
+    "placeRank": 26,
+    "addressType": "road",
+    "displayName": "North Old Dixie Highway, Jupiter, Palm Beach County, Florida, 33477, United States"
+  },
+  "11910 se federal hwy hobe sound fl 33455": {
+    "lat": 27.058846,
+    "lon": -80.136905,
+    "variant": "full",
+    "placeRank": 30,
+    "addressType": "amenity",
+    "displayName": "Harry and the Natives, 11910, Southeast Federal Highway, Hobe Sound, Martin County, Florida, 33455, United States"
+  },
+  "11844 se dixie hwy ste a hobe sound fl 33455": {
+    "lat": 27.059563,
+    "lon": -80.128983,
+    "variant": "no-suite",
+    "placeRank": 30,
+    "addressType": "place",
+    "displayName": "11844, Southeast Dixie Highway, Hobe Sound, Martin County, Florida, 33455, United States"
+  },
+  "11970 se dixie hwy hobe sound fl 33455": {
+    "lat": 27.058339,
+    "lon": -80.127885,
+    "variant": "full",
+    "placeRank": 30,
+    "addressType": "place",
+    "displayName": "11970, Southeast Dixie Highway, Hobe Sound, Martin County, Florida, 33455, United States"
+  },
+  "1640 seaway dr fort pierce fl 34949": {
+    "lat": 27.469523,
+    "lon": -80.296035,
+    "variant": "full",
+    "placeRank": 30,
+    "addressType": "amenity",
+    "displayName": "Manatee Island, 1640, Seaway Drive, Fort Pierce, Saint Lucie County, Florida, 34949, United States"
+  },
+  "11189 se federal hwy hobe sound fl 33455": {
+    "lat": 27.067869,
+    "lon": -80.140454,
+    "variant": "full",
+    "placeRank": 30,
+    "addressType": "place",
+    "displayName": "11189, Southeast Federal Highway, Hobe Sound, Martin County, Florida, 33455, United States"
+  },
+  "8913 se bridge rd hobe sound fl 33455": {
+    "lat": 27.061976,
+    "lon": -80.133952,
+    "variant": "full",
+    "placeRank": 30,
+    "addressType": "amenity",
+    "displayName": "Scooters Fun Food + Spirits, 8913, Southeast Bridge Road, Hobe Sound, Martin County, Florida, 33455, United States"
+  },
+  "8781 se federal hwy hobe sound fl 33455": {
+    "lat": 27.051706,
+    "lon": -80.129683,
+    "variant": "full",
+    "placeRank": 26,
+    "addressType": "road",
+    "displayName": "Southeast Federal Highway, Hobe Sound, Martin County, Florida, 33455, United States"
+  },
+  "11550 se federal hwy hobe sound fl 33455": {
+    "lat": 27.063297,
+    "lon": -80.138131,
+    "variant": "full",
+    "placeRank": 30,
+    "addressType": "place",
+    "displayName": "11550, Southeast Federal Highway, Hobe Sound, Martin County, Florida, 33455, United States"
+  },
+  "8423 se church st hobe sound fl 33455": null
+}

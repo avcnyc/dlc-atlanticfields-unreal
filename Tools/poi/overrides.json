@@ -1,0 +1,8 @@
+{
+  "_README": "Hand-entered coordinates for addresses OpenStreetMap does not hold. Keyed by the address exactly as the sheet spells it. Applied before the geocode cache, so a re-run never undoes a fix made here. Look the address up on a map, take lat/lon, and say in 'note' where it came from.",
+  "_EXAMPLE": {
+    "lat": 0.0,
+    "lon": 0.0,
+    "note": "delete this entry -- it is only here to show the shape"
+  }
+}
